@@ -11,6 +11,7 @@ WAXP = (function(){
         YOU_TITLE = 'Tú', // You
         PHOTO_SELECT_TITLE = "Selector de foto", // Photo Picker
         SEARCH_EXPANDED_TITLE = "Buscar participantes" // Search Participants
+	SECTION_PARTICIPANTS = "section-participants"
 
     var scrollInterval, observer, membersList, header, expandButton, expandedMemberList, moreButton, groupName, totalMembers, scrollDiv;
     var currentDate = (new Date()).toLocaleDateString()
@@ -27,8 +28,9 @@ WAXP = (function(){
         // Now that we are sure the group details are open we get the header
         header = document.getElementsByTagName('header')[0]
         // and total members
-        totalMembers = document.querySelectorAll(`div[title="${PHOTO_SELECT_TITLE}"]`)[0]?.parentNode?.parentNode?.parentNode?.lastChild.innerText.replace(/^\D+/g, '').split(' ')[0]
-        console.log("Total Members: ", totalMembers)
+        // totalMembers = document.querySelectorAll(`div[title="${PHOTO_SELECT_TITLE}"]`)[0]?.parentNode?.parentNode?.parentNode?.lastChild.innerText.replace(/^\D+/g, '').split(' ')[0]
+        totalMembers = document.querySelectorAll(`div[data-testid="${SECTION_PARTICIPANTS }"]`)[0]?.firstChild.firstChild.firstChild.firstChild.innerText.split(" ")[0]
+	console.log("Total Members: ", totalMembers)
         // and group name
         groupName = document.querySelectorAll(`div[title="${PHOTO_SELECT_TITLE}"]`)[0]?.parentNode?.parentNode?.parentNode?.children.item(1).firstChild.firstChild.firstChild.firstChild.lastChild.title
         console.log("Group Name: ", groupName)
@@ -42,11 +44,11 @@ WAXP = (function(){
             shortProcess()
         } else if (totalMembers > 20) {
             // Open the member pop-up and start scrolling until memberList.length == totalMembers
-            expandButton = membersList.parentNode.parentNode.lastChild
-            // console.log("expandButton is:", expandButton)
+            expandButton = document.querySelectorAll(`div[data-testid="${SECTION_PARTICIPANTS }"]`)[0]?.parentNode.lastChild.lastChild
+            console.log("expandButton is:", expandButton)
             expandButton.click()
             expandedMemberList = document.querySelectorAll(`div[title="${SEARCH_EXPANDED_TITLE}"]`)[0].parentNode.parentNode.parentNode.lastChild.firstChild.firstChild.firstChild
-            // console.log("expanded member list is:", expandedMemberList)
+            console.log("expanded member list is:", expandedMemberList)
             longProcess()
         } else {
             // Now process all the members
@@ -65,7 +67,7 @@ WAXP = (function(){
         scrollDiv = expandedMemberList.parentElement.parentElement.parentElement
         scrollDiv.scroll(0,0)
         scrapeDataLong()
-        if(AUTO_SCROLL) scrollInterval = setInterval(autoScrollLong, SCROLL_INTERVAL)// Keep scrolling down 
+        if(AUTO_SCROLL) scrollInterval = setInterval(autoScrollLong, SCROLL_INTERVAL) // Keep scrolling down 
     }
     var scrapeDataLong = function(){
         // the div to watch for mutations
@@ -78,6 +80,7 @@ WAXP = (function(){
                 let number = memberData[0].title
                 // Only scrape non contacts
                 if (number.replace(/[^0-9]/g,"").length >= 8) {
+		    console.log("Number: ", number)
                     let name = '', status = '', isUnsaved = false
                     let contact = { 'phone': number, 'isUnsaved': isUnsaved }
                     if (memberData.length === 3) {
@@ -91,7 +94,7 @@ WAXP = (function(){
                         }
                     }
                     // console.log("Nombre: ", name)
-                    // console.log("Numero: ", number)
+                    console.log("Numero: ", number)
                     // console.log("Status: ", status)
                     // console.log("Contact: ", contact)
                     if (!MEMBERS_QUEUE[contact.phone]) {
